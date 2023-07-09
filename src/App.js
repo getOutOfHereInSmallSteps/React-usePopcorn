@@ -22,7 +22,7 @@ const ErrorMessage = ({ children }) => {
 export default function App() {
   const [movies, setMovies] = useState([]);
   const [watched, setWatched] = useState([]);
-  const [query, setQuery] = useState('interstellar');
+  const [query, setQuery] = useState('daaasdas');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const moviesCount = movies.length;
@@ -33,10 +33,15 @@ export default function App() {
         setIsLoading(true);
         const res = await fetch(`${API_KEY}&s=${query}`);
 
-        if (!res.ok)
+        if (!res.ok) {
           throw new Error('Something went wrong while fetching movies');
+        }
 
         const resData = await res.json();
+
+        if (resData.Response === 'False') {
+          throw new Error('No movies found');
+        }
 
         setMovies(resData.Search);
         setIsLoading(false);
