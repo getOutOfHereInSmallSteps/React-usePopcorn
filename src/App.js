@@ -15,27 +15,36 @@ import { Loader } from './Loader';
 
 const API_KEY = 'https://www.omdbapi.com/?i=tt3896198&apikey=45871cbf';
 
+const ErrorMessage = ({ children }) => {
+  return <p className="error">{children}</p>;
+};
+
 export default function App() {
   const [movies, setMovies] = useState([]);
   const [watched, setWatched] = useState([]);
   const [query, setQuery] = useState('interstellar');
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
   const moviesCount = movies.length;
 
   useEffect(() => {
     const fetchMovies = async () => {
-      setIsLoading(true);
-      const res = await fetch(`${API_KEY}&s=${query}`);
-      const resData = await res.json();
+      try {
+        setIsLoading(true);
+        const res = await fetch(`${API_KEY}&s=${query}`);
 
-      setMovies(resData.Search);
-      setIsLoading(false);
+        if (!res.ok)
+          throw new Error('Something went wrong while fetching movies');
+
+        const resData = await res.json();
+
+        setMovies(resData.Search);
+        setIsLoading(false);
+      } catch (err) {
+        setError(err.message);
+        setIsLoading(false);
+      }
     };
-    // fetch(`${API_KEY}&s=interstellar`)
-    //   .then(res => res.json())
-    //   .then(res => {
-    //     setMovies(res.Search);
-    //   });
 
     fetchMovies();
   }, []);
@@ -47,7 +56,11 @@ export default function App() {
         <NumResults moviesCount={moviesCount} />
       </NavBar>
       <Main>
-        <Box>{isLoading ? <Loader /> : <MovieList movies={movies} />}</Box>
+        <Box>
+          {isLoading && <Loader />}
+          {!isLoading && !error && <MovieList movies={movies} />}
+          {error && <ErrorMessage>{error}</ErrorMessage>}
+        </Box>
         <Box>
           <WatchedSummary watched={watched} />
           <WatchedList watched={watched} />
