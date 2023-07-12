@@ -115,3 +115,5 @@ StarRating.propTypes = {
   size: PropTypes.number,
   onSetRating: PropTypes.func,
 };
+
+export default StarRating;

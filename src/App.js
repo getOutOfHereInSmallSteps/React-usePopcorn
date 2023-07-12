@@ -15,7 +15,7 @@ import { Loader } from './Loader';
 import { ErrorMessage } from './ErrorMessage';
 import { MovieDetails } from './MovieDetails';
 
-const API_KEY = 'https://www.omdbapi.com/?apikey=45871cbf';
+import { API_KEY } from './data';
 
 export default function App() {
   const [movies, setMovies] = useState([]);
@@ -85,6 +85,7 @@ export default function App() {
             <MovieDetails
               selectedId={selectedId}
               onCloseMovie={closeMovieHandler}
+              key={selectedId}
             />
           ) : (
             <React.Fragment>

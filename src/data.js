@@ -44,3 +44,5 @@ export const tempWatchedData = [
     userRating: 9,
   },
 ];
+
+export const API_KEY = 'https://www.omdbapi.com/?apikey=45871cbf';
