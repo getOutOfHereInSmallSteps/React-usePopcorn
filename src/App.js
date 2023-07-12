@@ -12,25 +12,42 @@ import { WatchedSummary } from './WatchedSummary';
 import { WatchedList } from './WatchedList';
 import { Box } from './Box';
 import { Loader } from './Loader';
+import { ErrorMessage } from './ErrorMessage';
 
-const API_KEY = 'https://www.omdbapi.com/?i=tt3896198&apikey=45871cbf';
+const API_KEY = 'https://www.omdbapi.com/?apikey=45871cbf';
 
-const ErrorMessage = ({ children }) => {
-  return <p className="error">{children}</p>;
+const MovieDetails = ({ selectedId, onCloseMovie }) => {
+  return (
+    <div className="details">
+      {selectedId}
+      <button className="btn-back" onClick={onCloseMovie}>
+        &larr;
+      </button>
+    </div>
+  );
 };
 
 export default function App() {
   const [movies, setMovies] = useState([]);
   const [watched, setWatched] = useState([]);
-  const [query, setQuery] = useState('daaasdas');
+  const [query, setQuery] = useState('Interstellar');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const moviesCount = movies.length;
+  const [selectedId, setSelectedId] = useState(null);
+
+  const movieSelectHandler = movieId => {
+    setSelectedId(prevId => (prevId === movieId ? null : movieId));
+  };
+
+  const closeMovieHandler = () => {
+    setSelectedId(null);
+  };
 
   useEffect(() => {
     const fetchMovies = async () => {
+      setError('');
+      setIsLoading(true);
       try {
-        setIsLoading(true);
         const res = await fetch(`${API_KEY}&s=${query}`);
 
         if (!res.ok) {
@@ -44,31 +61,47 @@ export default function App() {
         }
 
         setMovies(resData.Search);
-        setIsLoading(false);
       } catch (err) {
         setError(err.message);
+      } finally {
         setIsLoading(false);
       }
     };
 
+    if (!query.length) {
+      setMovies([]);
+      setError('');
+      return;
+    }
     fetchMovies();
-  }, []);
+  }, [query]);
 
   return (
     <React.Fragment>
       <NavBar>
-        <Search />
-        <NumResults moviesCount={moviesCount} />
+        <Search query={query} setQuery={setQuery} />
+        <NumResults moviesCount={movies.length} />
       </NavBar>
       <Main>
         <Box>
           {isLoading && <Loader />}
-          {!isLoading && !error && <MovieList movies={movies} />}
+          {!isLoading && !error && (
+            <MovieList onSelectMovie={movieSelectHandler} movies={movies} />
+          )}
           {error && <ErrorMessage>{error}</ErrorMessage>}
         </Box>
         <Box>
-          <WatchedSummary watched={watched} />
-          <WatchedList watched={watched} />
+          {selectedId ? (
+            <MovieDetails
+              selectedId={selectedId}
+              onCloseMovie={closeMovieHandler}
+            />
+          ) : (
+            <React.Fragment>
+              <WatchedSummary watched={watched} />
+              <WatchedList watched={watched} />
+            </React.Fragment>
+          )}
         </Box>
       </Main>
     </React.Fragment>
