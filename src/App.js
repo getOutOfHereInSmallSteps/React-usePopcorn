@@ -13,19 +13,9 @@ import { WatchedList } from './WatchedList';
 import { Box } from './Box';
 import { Loader } from './Loader';
 import { ErrorMessage } from './ErrorMessage';
+import { MovieDetails } from './MovieDetails';
 
 const API_KEY = 'https://www.omdbapi.com/?apikey=45871cbf';
-
-const MovieDetails = ({ selectedId, onCloseMovie }) => {
-  return (
-    <div className="details">
-      {selectedId}
-      <button className="btn-back" onClick={onCloseMovie}>
-        &larr;
-      </button>
-    </div>
-  );
-};
 
 export default function App() {
   const [movies, setMovies] = useState([]);
