@@ -52,6 +52,15 @@ export const MovieDetails = ({
     getMovieDetails();
   }, [selectedId]);
 
+  useEffect(() => {
+    if (!movie.Title) return;
+    document.title = `Movie | ${movie.Title}`;
+
+    return () => {
+      document.title = 'UsePopcorn';
+    };
+  }, [movie]);
+
   return (
     <div className="details">
       {isLoading ? (
