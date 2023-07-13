@@ -3,10 +3,37 @@ import React, { useEffect, useState } from 'react';
 import StarRating from './StarRating';
 
 import { API_KEY } from './data';
+import { Loader } from './Loader';
 
-export const MovieDetails = ({ selectedId, onCloseMovie }) => {
+export const MovieDetails = ({
+  selectedId,
+  onCloseMovie,
+  onAddWatched,
+  watched,
+}) => {
   const [movie, setMovie] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const [userRating, setUserRating] = useState('');
+
+  const isWatched = watched.filter(el => el.imdbId === selectedId).length > 0;
+  const watchedUserRating = watched.find(
+    el => el.imdbId === selectedId
+  )?.userRating;
+
+  const addHandler = () => {
+    const newWatchedMovie = {
+      imdbId: selectedId,
+      imdbRating: +movie.imdbRating,
+      Title: movie.Title,
+      year: movie.Year,
+      runtime: +movie.Runtime.split(' ')[0],
+      Poster: movie.Poster,
+      userRating,
+    };
+
+    onAddWatched(newWatchedMovie);
+    onCloseMovie();
+  };
 
   useEffect(() => {
     const getMovieDetails = async () => {
@@ -22,42 +49,60 @@ export const MovieDetails = ({ selectedId, onCloseMovie }) => {
         setIsLoading(false);
       }
     };
-
     getMovieDetails();
-  }, []);
+  }, [selectedId]);
 
   return (
     <div className="details">
-      <header>
-        <button className="btn-back" onClick={onCloseMovie}>
-          &larr;
-        </button>
-        <img src={movie.Poster} alt={`The poster of ${movie.Title}`} />
-        <div className="details-overview">
-          <h2>{movie.Title}</h2>
-          <p>
-            {movie.Released} &bull; {movie.Runtime}
-          </p>
-          <p>{movie.Genre}</p>
-          <p>
-            <span>⭐️</span>
-            {movie.imdbRating} IMDB Rating
-          </p>
-        </div>
-      </header>
+      {isLoading ? (
+        <Loader />
+      ) : (
+        <React.Fragment>
+          <header>
+            <button className="btn-back" onClick={onCloseMovie}>
+              &larr;
+            </button>
+            <img src={movie.Poster} alt={`The poster of ${movie.Title}`} />
+            <div className="details-overview">
+              <h2>{movie.Title}</h2>
+              <p>
+                {movie.Released} &bull; {movie.Runtime}
+              </p>
+              <p>{movie.Genre}</p>
+              <p>
+                <span>⭐️</span>
+                {movie.imdbRating} IMDB Rating
+              </p>
+            </div>
+          </header>
 
-      <section>
-        <div className="rating">
-          <StarRating maxRating={10} size={24} />
-        </div>
-        <p>
-          <em>{movie.Plot}</em>
-        </p>
-        <p>Starring: {movie.Actors}</p>
-        <p>Directed by: {movie.Director}</p>
-      </section>
-
-      {isLoading && 'loading...'}
+          <section>
+            <div className="rating">
+              {!isWatched ? (
+                <React.Fragment>
+                  <StarRating
+                    maxRating={10}
+                    size={24}
+                    onSetRating={setUserRating}
+                  />
+                  {userRating > 0 ? (
+                    <button onClick={addHandler} className="btn-add">
+                      + Add to list
+                    </button>
+                  ) : null}
+                </React.Fragment>
+              ) : (
+                <p>You rated this movie {watchedUserRating}</p>
+              )}
+            </div>
+            <p>
+              <em>{movie.Plot}</em>
+            </p>
+            <p>Starring: {movie.Actors}</p>
+            <p>Directed by: {movie.Director}</p>
+          </section>
+        </React.Fragment>
+      )}
     </div>
   );
 };

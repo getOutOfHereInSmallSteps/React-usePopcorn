@@ -33,6 +33,16 @@ export default function App() {
     setSelectedId(null);
   };
 
+  const addWatchedMovieHandler = movie => {
+    setWatched(prevWatched => {
+      return [...prevWatched, movie];
+    });
+  };
+
+  const deleteWatchedHandler = id => {
+    setWatched(prevWatched => prevWatched.filter(el => el.imdbId !== id));
+  };
+
   useEffect(() => {
     const fetchMovies = async () => {
       setError('');
@@ -85,12 +95,16 @@ export default function App() {
             <MovieDetails
               selectedId={selectedId}
               onCloseMovie={closeMovieHandler}
-              key={selectedId}
+              onAddWatched={addWatchedMovieHandler}
+              watched={watched}
             />
           ) : (
             <React.Fragment>
               <WatchedSummary watched={watched} />
-              <WatchedList watched={watched} />
+              <WatchedList
+                watched={watched}
+                onDeleteWatched={deleteWatchedHandler}
+              />
             </React.Fragment>
           )}
         </Box>
