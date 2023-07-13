@@ -4,6 +4,7 @@ import StarRating from './StarRating';
 
 import { API_KEY } from './data';
 import { Loader } from './Loader';
+import { useKey } from './hooks/useKey';
 
 export const MovieDetails = ({
   selectedId,
@@ -44,19 +45,7 @@ export const MovieDetails = ({
     }
   }, [userRating]);
 
-  useEffect(() => {
-    const escapeCloseHanlder = e => {
-      if (e.code === 'Escape' || e.code === 'Esc') {
-        onCloseMovie();
-      }
-    };
-
-    document.addEventListener('keydown', escapeCloseHanlder);
-
-    return () => {
-      document.removeEventListener('keydown', escapeCloseHanlder);
-    };
-  }, []);
+  useKey('Escape', onCloseMovie);
 
   useEffect(() => {
     const getMovieDetails = async () => {
