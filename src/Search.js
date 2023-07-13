@@ -1,7 +1,11 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 
 export const Search = ({ query, setQuery }) => {
-  // const [query, setQuery] = useState('');
+  const inputEl = useRef(null);
+
+  useEffect(() => {
+    inputEl.current.focus();
+  }, []);
 
   return (
     <input
@@ -10,6 +14,7 @@ export const Search = ({ query, setQuery }) => {
       placeholder="Search movies..."
       value={query}
       onChange={e => setQuery(e.target.value)}
+      ref={inputEl}
     />
   );
 };
