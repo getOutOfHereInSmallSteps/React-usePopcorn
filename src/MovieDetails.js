@@ -36,6 +36,20 @@ export const MovieDetails = ({
   };
 
   useEffect(() => {
+    const escapeCloseHanlder = e => {
+      if (e.code === 'Escape' || e.code === 'Esc') {
+        onCloseMovie();
+      }
+    };
+
+    document.addEventListener('keydown', escapeCloseHanlder);
+
+    return () => {
+      document.removeEventListener('keydown', escapeCloseHanlder);
+    };
+  }, []);
+
+  useEffect(() => {
     const getMovieDetails = async () => {
       try {
         setIsLoading(true);
