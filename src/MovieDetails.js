@@ -42,7 +42,6 @@ export const MovieDetails = ({
     if (userRating) {
       ++countRef.current;
     }
-    console.log(countRef.current);
   }, [userRating]);
 
   useEffect(() => {
