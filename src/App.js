@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 
 // import { tempMovieData } from './data';
 // import { tempWatchedData } from './data';
+// import { API_KEY } from './data';
 
 import { Main } from './Main';
 import { MovieList } from './MovieList';
@@ -15,20 +16,18 @@ import { Loader } from './Loader';
 import { ErrorMessage } from './ErrorMessage';
 import { MovieDetails } from './MovieDetails';
 
-import { API_KEY } from './data';
+import { useMovies } from './hooks/useMovies';
 
 export default function App() {
-  const [movies, setMovies] = useState([]);
   const [query, setQuery] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
   const [selectedId, setSelectedId] = useState(null);
 
-  // const [watched, setWatched] = useState([]);
   const [watched, setWatched] = useState(() => {
     const storedValue = JSON.parse(localStorage.getItem('watched'));
     return storedValue;
   });
+
+  const { movies, isLoading, error } = useMovies(query);
 
   const movieSelectHandler = movieId => {
     setSelectedId(prevId => (prevId === movieId ? null : movieId));
@@ -42,8 +41,6 @@ export default function App() {
     setWatched(prevWatched => {
       return [...prevWatched, movie];
     });
-
-    // localStorage.setItem('watched', JSON.stringify([...watched, movie]));
   };
 
   const deleteWatchedHandler = id => {
@@ -53,50 +50,6 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem('watched', JSON.stringify(watched));
   }, [watched]);
-
-  useEffect(() => {
-    const controller = new AbortController();
-
-    const fetchMovies = async () => {
-      setError('');
-      setIsLoading(true);
-      try {
-        const res = await fetch(`${API_KEY}&s=${query}`, {
-          signal: controller.signal,
-        });
-
-        if (!res.ok) {
-          throw new Error('Something went wrong while fetching movies');
-        }
-
-        const resData = await res.json();
-
-        if (resData.Response === 'False') {
-          throw new Error('No movies found');
-        }
-
-        setMovies(resData.Search);
-        setError('');
-      } catch (err) {
-        if (err.name !== 'AbortError') {
-          setError(err.message);
-        }
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    if (!query.length) {
-      setMovies([]);
-      setError('');
-      return;
-    }
-    fetchMovies();
-
-    return () => {
-      controller.abort();
-    };
-  }, [query]);
 
   return (
     <React.Fragment>
