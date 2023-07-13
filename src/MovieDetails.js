@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 import StarRating from './StarRating';
 
@@ -15,6 +15,8 @@ export const MovieDetails = ({
   const [isLoading, setIsLoading] = useState(false);
   const [userRating, setUserRating] = useState('');
 
+  const countRef = useRef(0);
+
   const isWatched = watched.filter(el => el.imdbId === selectedId).length > 0;
   const watchedUserRating = watched.find(
     el => el.imdbId === selectedId
@@ -29,11 +31,19 @@ export const MovieDetails = ({
       runtime: +movie.Runtime.split(' ')[0],
       Poster: movie.Poster,
       userRating,
+      countRatingDecisions: countRef.current,
     };
 
     onAddWatched(newWatchedMovie);
     onCloseMovie();
   };
+
+  useEffect(() => {
+    if (userRating) {
+      ++countRef.current;
+    }
+    console.log(countRef.current);
+  }, [userRating]);
 
   useEffect(() => {
     const escapeCloseHanlder = e => {
