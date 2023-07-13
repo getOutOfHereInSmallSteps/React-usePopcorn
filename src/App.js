@@ -19,11 +19,16 @@ import { API_KEY } from './data';
 
 export default function App() {
   const [movies, setMovies] = useState([]);
-  const [watched, setWatched] = useState([]);
   const [query, setQuery] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [selectedId, setSelectedId] = useState(null);
+
+  // const [watched, setWatched] = useState([]);
+  const [watched, setWatched] = useState(() => {
+    const storedValue = JSON.parse(localStorage.getItem('watched'));
+    return storedValue;
+  });
 
   const movieSelectHandler = movieId => {
     setSelectedId(prevId => (prevId === movieId ? null : movieId));
@@ -37,11 +42,17 @@ export default function App() {
     setWatched(prevWatched => {
       return [...prevWatched, movie];
     });
+
+    // localStorage.setItem('watched', JSON.stringify([...watched, movie]));
   };
 
   const deleteWatchedHandler = id => {
     setWatched(prevWatched => prevWatched.filter(el => el.imdbId !== id));
   };
+
+  useEffect(() => {
+    localStorage.setItem('watched', JSON.stringify(watched));
+  }, [watched]);
 
   useEffect(() => {
     const controller = new AbortController();
