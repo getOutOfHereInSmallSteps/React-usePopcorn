@@ -20,7 +20,7 @@ import { API_KEY } from './data';
 export default function App() {
   const [movies, setMovies] = useState([]);
   const [watched, setWatched] = useState([]);
-  const [query, setQuery] = useState('Interstellar');
+  const [query, setQuery] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [selectedId, setSelectedId] = useState(null);
@@ -44,11 +44,15 @@ export default function App() {
   };
 
   useEffect(() => {
+    const controller = new AbortController();
+
     const fetchMovies = async () => {
       setError('');
       setIsLoading(true);
       try {
-        const res = await fetch(`${API_KEY}&s=${query}`);
+        const res = await fetch(`${API_KEY}&s=${query}`, {
+          signal: controller.signal,
+        });
 
         if (!res.ok) {
           throw new Error('Something went wrong while fetching movies');
@@ -61,8 +65,11 @@ export default function App() {
         }
 
         setMovies(resData.Search);
+        setError('');
       } catch (err) {
-        setError(err.message);
+        if (err.name !== 'AbortError') {
+          setError(err.message);
+        }
       } finally {
         setIsLoading(false);
       }
@@ -74,6 +81,10 @@ export default function App() {
       return;
     }
     fetchMovies();
+
+    return () => {
+      controller.abort();
+    };
   }, [query]);
 
   return (
